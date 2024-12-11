@@ -1,0 +1,87 @@
+1. Bash-Skript (backup.sh)
+Das Skript sollte folgende Schritte durchführen:
+
+Archiv erstellen: Mit tar soll ein Backup des /home-Verzeichnisses erstellt werden.
+Dateinamen anpassen: Der Dateiname muss einen Zeitstempel im Format backup_TAG-MONAT-JAHR_STUNDE-MINUTE-SEKUNDE.tar.gz enthalten.
+Archiv verschieben: Verschiebe die Datei in das /backup-Verzeichnis.
+Zwischenmeldungen ausgeben: Zum Beispiel Meldungen, wenn ein Schritt erfolgreich war oder wenn ein Fehler auftritt.
+Beispielskript:
+
+bash
+Code kopieren
+#!/bin/bash
+
+# Variablen definieren
+HOME_DIR="/home"
+BACKUP_DIR="/backup"
+TIMESTAMP=$(date +"%d-%m-%Y_%H-%M-%S")
+BACKUP_FILE="backup_${TIMESTAMP}.tar.gz"
+
+# Backup erstellen
+echo "Erstelle Backup von ${HOME_DIR}..."
+tar -czf "/tmp/${BACKUP_FILE}" "${HOME_DIR}" 2>/tmp/backup_error.log
+if [ $? -eq 0 ]; then
+    echo "Backup erfolgreich erstellt: ${BACKUP_FILE}"
+else
+    echo "Fehler beim Erstellen des Backups. Siehe /tmp/backup_error.log"
+    exit 1
+fi
+
+# Backup verschieben
+echo "Verschiebe Backup nach ${BACKUP_DIR}..."
+mv "/tmp/${BACKUP_FILE}" "${BACKUP_DIR}"
+if [ $? -eq 0 ]; then
+    echo "Backup erfolgreich verschoben."
+else
+    echo "Fehler beim Verschieben des Backups."
+    exit 1
+fi
+2. Service-Datei (backup.service)
+Die Service-Datei startet das Skript.
+
+Beispiel:
+
+ini
+Code kopieren
+[Unit]
+Description=Backup Service
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /path/to/backup.sh
+Speichere diese Datei unter /etc/systemd/system/backup.service.
+
+3. Timer-Datei (backup.timer)
+Die Timer-Datei sorgt dafür, dass der Service stündlich ausgeführt wird.
+
+Beispiel:
+
+ini
+Code kopieren
+[Unit]
+Description=Backup Timer
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+Speichere diese Datei ebenfalls unter /etc/systemd/system/backup.timer.
+
+4. Systemd-Timer und Service aktivieren
+Führe folgende Befehle aus, um den Service und den Timer zu aktivieren und zu starten:
+
+bash
+Code kopieren
+sudo systemctl daemon-reload
+sudo systemctl enable backup.timer
+sudo systemctl start backup.timer
+Zum Testen kannst du das Zeitintervall in der Timer-Datei mit OnCalendar=*:*:0/10 auf alle 10 Sekunden ändern.
+
+Zusammenfassung der Schritte
+Skript erstellen: Speichere das Bash-Skript als backup.sh in einem passenden Verzeichnis (z. B. /usr/local/bin).
+Service- und Timer-Dateien erstellen: Speichere sie in /etc/systemd/system.
+Timer aktivieren: Mit systemctl sicherstellen, dass der Timer korrekt läuft.
+Testen: Prüfe, ob das Skript funktioniert und die Backups im gewünschten Format im /backup-Verzeichnis gespeichert werden.
