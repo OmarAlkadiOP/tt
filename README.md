@@ -80,3 +80,6 @@ Fügen Sie am besten eine zusätzliche Sicherung der Skripte ein, damit diese ni
 
 Testen
 Testen Sie die Skripte zuerst mit Testbildern in einem separaten Ordner, bevor Sie echte Bilder verarbeiten.
+
+
+https://drive.google.com/drive/folders/1ISdK4ZrZMPSQzQE6NXfSUo4Z5Mw06g4b?usp=drive_link
